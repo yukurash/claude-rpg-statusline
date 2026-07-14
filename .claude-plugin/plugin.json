@@ -1,0 +1,10 @@
+{
+  "name": "claude-rpg-statusline",
+  "description": "A Dragon-Quest-style RPG status window for Claude Code, plus an optional combat-log PostToolUse hook.",
+  "version": "0.1.0",
+  "author": {
+    "name": "yukurash"
+  },
+  "homepage": "https://github.com/yukurash/claude-rpg-statusline",
+  "license": "MIT"
+}
