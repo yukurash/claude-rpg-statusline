@@ -82,6 +82,7 @@ session is idle.
 | --- | --- |
 | `CCRPG_COLOR` | `truecolor` / `256` / `none` (default: auto-detect) |
 | `CCRPG_ASCII=1` | Use an ASCII frame (`+ - |`) for terminals that mangle box-drawing |
+| `CCRPG_GAUGE` | Gauge style: `pips` (default `▰▱`) / `bars` (`█░`) / `orbs` (`◆◇`) / `dots` (`●○`) |
 | `CCRPG_LANG=ja` | Japanese battle messages (`レベルアップ！`, `ふくろが いっぱいだ！`) |
 | `CCRPG_STATE_DIR` | Override the state directory (default `~/.claude`) |
 | `CCRPG_DEBUG=1` | Dump the raw stdin JSON to `~/.claude/ccrpg-debug-stdin.json` |

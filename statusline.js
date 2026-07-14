@@ -40,11 +40,20 @@ async function main() {
     const view = parseInput(raw, { now, env: process.env });
     const event = readFreshEvent(now); // optional hook-written event
 
+    const GAUGES = {
+      pips: ["▰", "▱"],
+      bars: ["█", "░"],
+      orbs: ["◆", "◇"],
+      dots: ["●", "○"],
+    };
+    const glyphs = GAUGES[process.env.CCRPG_GAUGE] || GAUGES.pips;
+
     const out = render(view, {
       mode: detectMode(process.env),
       ascii: process.env.CCRPG_ASCII === "1",
       lang,
       event,
+      glyphs,
     });
     process.stdout.write(out + "\n");
   } catch (err) {
