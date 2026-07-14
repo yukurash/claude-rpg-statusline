@@ -1,0 +1,23 @@
+{
+  "name": "claude-rpg-statusline",
+  "version": "0.1.0",
+  "description": "A Dragon-Quest-style RPG status window for the Claude Code statusline: weekly / 5-hour / context usage, model, effort and spent tokens rendered as a game HUD.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo": "node scripts/demo.js"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "statusline",
+    "rpg",
+    "tui",
+    "usage"
+  ],
+  "author": "yukurash",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+*.log
+*-dump.json
+cc-stdin*.json
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
