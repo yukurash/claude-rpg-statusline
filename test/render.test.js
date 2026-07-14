@@ -7,8 +7,7 @@ const OUTER = INNER + 2; // + two border cells
 const normal = {
   model: "opus-4.8",
   effort: "MAX",
-  lv: 7,
-  tokens: 47200,
+  cost: 30.05,
   rows: [
     { name: "Weekly", pct: 71, reset: "3d" },
     { name: "5-Hour", pct: 91, reset: "2h" },
@@ -19,8 +18,7 @@ const normal = {
 const coldStart = {
   model: "sonnet-5",
   effort: "—",
-  lv: 1,
-  tokens: 0,
+  cost: 0,
   rows: [
     { name: "Weekly", pct: null, reset: "--" },
     { name: "5-Hour", pct: null, reset: "--" },
@@ -51,9 +49,9 @@ test("reproduces the approved mock content (mode none)", () => {
   const lines = render(normal, { mode: "none" }).split("\n");
   // Header
   assert.match(lines[1], /MODEL {3}opus-4\.8/);
-  assert.ok(lines[1].endsWith("Lv.7 ║"));
+  assert.ok(!lines[1].includes("Lv."), "no level shown");
   assert.match(lines[2], /EFFORT {2}MAX/);
-  assert.ok(lines[2].includes("GOLD  47.2k tok"));
+  assert.ok(lines[2].includes("GOLD  $30.05"));
   // Gauges reflect usage percentages.
   assert.ok(lines[4].includes("███████████░░░░░")); // 71%
   assert.ok(lines[5].includes("███████████████░")); // 91%

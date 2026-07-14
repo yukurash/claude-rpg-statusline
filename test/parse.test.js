@@ -11,10 +11,8 @@ test("maps a full Pro/Max payload into the view", () => {
   const raw = {
     model: { id: "claude-opus-4-8", display_name: "Opus" },
     effort: { level: "high" },
-    context_window: {
-      used_percentage: 52.4,
-      current_usage: { input_tokens: 40000, output_tokens: 7200 },
-    },
+    cost: { total_cost_usd: 30.0456 },
+    context_window: { used_percentage: 52.4 },
     rate_limits: {
       five_hour: { used_percentage: 91, resets_at: inHours(2) },
       seven_day: { used_percentage: 71, resets_at: inDays(3) },
@@ -23,7 +21,7 @@ test("maps a full Pro/Max payload into the view", () => {
   const v = parseInput(raw, { now: NOW });
   assert.equal(v.model, "opus-4.8");
   assert.equal(v.effort, "HIGH");
-  assert.equal(v.tokens, 47200);
+  assert.equal(v.cost, 30.0456);
   assert.deepEqual(
     v.rows.map((r) => [r.name, r.pct, r.reset]),
     [
@@ -50,5 +48,5 @@ test("missing rate_limits (free / API / cold start) falls back cleanly", () => {
 test("empty input never throws", () => {
   const v = parseInput({}, { now: NOW });
   assert.equal(v.rows.length, 3);
-  assert.equal(v.lv, 1);
+  assert.equal(v.cost, null);
 });

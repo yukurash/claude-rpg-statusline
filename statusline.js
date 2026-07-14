@@ -5,8 +5,7 @@
 
 import { parseInput, render } from "./lib/render.js";
 import { detectMode } from "./lib/color.js";
-import { readState, writeState, readFreshEvent } from "./lib/state.js";
-import { levelUpMessage } from "./lib/flourish.js";
+import { readFreshEvent } from "./lib/state.js";
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -23,6 +22,13 @@ async function main() {
   let raw = {};
   try {
     const text = await readStdin();
+    if (process.env.CCRPG_DEBUG === "1") {
+      try {
+        const os = await import("node:os");
+        const fs = await import("node:fs");
+        fs.writeFileSync(os.homedir() + "/.claude/ccrpg-debug-stdin.json", text || "", "utf8");
+      } catch {}
+    }
     if (text.trim()) raw = JSON.parse(text);
   } catch {
     raw = {};
@@ -32,17 +38,7 @@ async function main() {
     const now = Date.now();
     const lang = process.env.CCRPG_LANG === "ja" ? "ja" : "en";
     const view = parseInput(raw, { now, env: process.env });
-
-    // Self-contained level-up: compare against the last level we rendered for
-    // this session. No hook needed, so there's no file-write race.
-    const state = readState();
-    const key = raw && raw.session_id ? String(raw.session_id) : "default";
-    const prevLv = (state.sessions && state.sessions[key]) || 0;
-    let event = readFreshEvent(now); // optional hook-written event
-    if (view.lv > prevLv && prevLv > 0) event = levelUpMessage(view.lv, lang);
-    state.sessions = state.sessions || {};
-    state.sessions[key] = view.lv;
-    writeState(state);
+    const event = readFreshEvent(now); // optional hook-written event
 
     const out = render(view, {
       mode: detectMode(process.env),
