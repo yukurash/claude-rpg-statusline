@@ -7,8 +7,7 @@ const mode = process.argv[2] || "none";
 const view = {
   model: "opus-4.8",
   effort: "MAX",
-  lv: 7,
-  tokens: 47200,
+  cost: 30.05,
   rows: [
     { name: "Weekly", pct: 71, reset: "3d" },
     { name: "5-Hour", pct: 91, reset: "2h" },

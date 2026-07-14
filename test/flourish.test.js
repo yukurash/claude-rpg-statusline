@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dangerMessage, levelUpMessage } from "../lib/flourish.js";
+import { dangerMessage } from "../lib/flourish.js";
 import { render } from "../lib/render.js";
 
 const rows = (w, f, c) => [
@@ -8,7 +8,7 @@ const rows = (w, f, c) => [
   { name: "5-Hour", pct: f, reset: "2h" },
   { name: "Context", pct: c, reset: "—" },
 ];
-const view = (w, f, c) => ({ model: "opus-4.8", effort: "MAX", lv: 3, tokens: 0, rows: rows(w, f, c) });
+const view = (w, f, c) => ({ model: "opus-4.8", effort: "MAX", cost: 1.23, rows: rows(w, f, c) });
 
 test("calm state produces no message", () => {
   assert.equal(dangerMessage(view(40, 50, 30)), null);
@@ -28,7 +28,6 @@ test("danger threshold at 85% otherwise", () => {
 
 test("japanese messages available", () => {
   assert.match(dangerMessage(view(40, 100, 50), "ja"), /つきた/);
-  assert.match(levelUpMessage(8, "ja"), /レベルアップ/);
 });
 
 test("calm render is exactly 8 lines; danger render appends a trailer", () => {
@@ -39,8 +38,8 @@ test("calm render is exactly 8 lines; danger render appends a trailer", () => {
 });
 
 test("event line is rendered above the danger line", () => {
-  const out = render(view(40, 91, 30), { mode: "none", event: "LEVEL UP!  you are now Lv.4" }).split("\n");
+  const out = render(view(40, 91, 30), { mode: "none", event: "CRITICAL HIT!  code struck" }).split("\n");
   assert.equal(out.length, 10);
-  assert.match(out[8], /★.*LEVEL UP/);
+  assert.match(out[8], /★.*CRITICAL HIT/);
   assert.match(out[9], /⚠/);
 });

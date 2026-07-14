@@ -4,13 +4,13 @@
 
 A zero-dependency [statusline](https://code.claude.com/docs/en/statusline) for
 Claude Code that renders your usage as a retro RPG HUD. Weekly / 5-hour /
-context gauges, model, effort and spent tokens (`GOLD`), with a `▶` cursor that
-automatically points at whichever resource is closest to its limit.
+context gauges, model, effort and cumulative cost (`GOLD`), with a `▶` cursor
+that automatically points at whichever resource is closest to its limit.
 
 ```
 ╔════════════════════════════════════════════════╗
-║ MODEL   opus-4.8                          Lv.7 ║
-║ EFFORT  MAX                    GOLD  47.2k tok ║
+║ MODEL   opus-4.8                               ║
+║ EFFORT  MAX                       GOLD  $12.40 ║
 ╟────────────┬──────────────────┬────────┬───────╢
 ║ Weekly     │ ███████░░░░░░░░░ │ 41/100 │  3d   ║
 ║▶5-Hour     │ ████████░░░░░░░░ │ 52/100 │  2h   ║
@@ -24,7 +24,7 @@ When a resource gets hot, a battle line appears below the window:
 ║▶5-Hour     │ ████████████████ │100/100 │  1h   ║
 ║ Context    │ ███████████████░ │ 93/100 │   —   ║
 ╚════════════╧══════════════════╧════════╧═══════╝
-  ★ LEVEL UP!  you are now Lv.8
+  ★ CRITICAL HIT!  code struck
   ⚠ INVENTORY FULL — run /compact to make room
 ```
 
@@ -34,8 +34,7 @@ When a resource gets hot, a battle line appears below the window:
 | --- | --- |
 | **MODEL** | Active model, e.g. `opus-4.8` |
 | **EFFORT** | Reasoning effort (`MAX` / `HIGH` / `MED` / `LOW`) |
-| **Lv** | Session level — grows with tokens spent this session |
-| **GOLD** | Tokens spent this session |
+| **GOLD** | Cumulative session cost in USD (from `cost.total_cost_usd`) |
 | **Weekly** | 7-day rate-limit usage `used/100`, with reset countdown |
 | **5-Hour** | 5-hour rate-limit usage `used/100`, with reset countdown |
 | **Context** | Context-window usage (no timed reset → `—`) |
@@ -85,6 +84,7 @@ session is idle.
 | `CCRPG_ASCII=1` | Use an ASCII frame (`+ - |`) for terminals that mangle box-drawing |
 | `CCRPG_LANG=ja` | Japanese battle messages (`レベルアップ！`, `ふくろが いっぱいだ！`) |
 | `CCRPG_STATE_DIR` | Override the state directory (default `~/.claude`) |
+| `CCRPG_DEBUG=1` | Dump the raw stdin JSON to `~/.claude/ccrpg-debug-stdin.json` |
 
 ## Missing-data fallback
 
@@ -106,9 +106,10 @@ blocks the tool.
 Claude Code pipes [session JSON on stdin](https://code.claude.com/docs/en/statusline)
 to the `statusLine.command` on every turn. `statusline.js` reads
 `model`, `effort.level`, `context_window.used_percentage`,
-`current_usage` (tokens), `cost`, and `rate_limits.{five_hour,seven_day}`, then
+`cost.total_cost_usd` (GOLD), and `rate_limits.{five_hour,seven_day}`, then
 renders the window. `render()` is a pure function and every line is width-checked
-so the table can never drift.
+so the table can never drift. (Set `CCRPG_DEBUG=1` to dump the raw stdin JSON to
+`~/.claude/ccrpg-debug-stdin.json` for inspection.)
 
 ```bash
 npm test                 # unit tests (width invariant, fallbacks, messages)
