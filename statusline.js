@@ -5,7 +5,8 @@
 
 import { parseInput, render } from "./lib/render.js";
 import { detectMode } from "./lib/color.js";
-import { readFreshEvent } from "./lib/state.js";
+import { readFreshEvent, readState, writeState, writeEvent } from "./lib/state.js";
+import { depletionTransition } from "./lib/flourish.js";
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -37,8 +38,16 @@ async function main() {
   try {
     const now = Date.now();
     const lang = process.env.CCRPG_LANG === "ja" ? "ja" : "en";
-    const view = parseInput(raw, { now, env: process.env });
-    const event = readFreshEvent(now); // optional hook-written event
+    const state = readState(); // cross-tick memory: EXP, depletion flags
+    const view = parseInput(raw, { now, env: process.env, state });
+
+    // Death/revival transitions since the last tick become transient events
+    // (written through the same channel as hook events, so the freshest wins).
+    const trans = depletionTransition(state, view.rows, lang);
+    if (trans.msg) writeEvent(trans.msg, 6000, now);
+    if (trans.changed) writeState({ ...state, depleted: trans.depleted });
+
+    const event = readFreshEvent(now); // hook combat line / level-up / revival
 
     const GAUGES = {
       pips: ["▰", "▱"],

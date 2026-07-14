@@ -10,7 +10,7 @@ closest to running out, and status ailments appear when things get dire.
 
 ```
 ╔════════════════════════════════════════════════╗
-║ MODEL   opus-4.8                               ║
+║ MODEL   opus-4.8                          Lv.7 ║
 ║ EFFORT  MAX                       GOLD  $12.40 ║
 ╟────────────┬──────────────────┬────────┬───────╢
 ║ RESOURCE   │       LIFE       │  LEFT  │RECOVER║
@@ -41,6 +41,7 @@ When a resource gets hot, ailment badges and battle lines appear:
 | **MODEL** | Active model, e.g. `opus-4.8` |
 | **EFFORT** | Reasoning effort (`MAX` / `HIGH` / `MED` / `LOW`) |
 | **GOLD** | Cumulative session cost in USD (from `cost.total_cost_usd`) |
+| **Lv.** | Character level from persistent EXP (needs the [combat-log hook](#optional-combat-log-hook-exp--levels)) |
 | **HP** (Weekly) | 7-day rate limit — your long-term life bar |
 | **MP** (5-Hour) | 5-hour rate limit — recovers much faster, like magic points |
 | **BAG** (Context) | Context window — `/compact` empties the bag (no timed reset → `—`) |
@@ -108,13 +109,38 @@ only after the first API response of a session. When it is absent — free / API
 usage, or the first few ticks — those rows show `--` and the cursor falls back to
 **Context**, which is always available. The window never renders broken.
 
-## Optional: combat-log hook
+## Optional: combat-log hook (EXP & levels)
 
 Enable a `PostToolUse` hook to turn each tool call into a transient combat line
 (`★ CRITICAL HIT!`, `you cast SCRY`, `you summon an ALLY`, …). Add to your
 settings, or install as a plugin using the bundled `.claude-plugin/plugin.json`
 and `hooks/hooks.json`. It only writes a tiny event file (atomically) and never
 blocks the tool.
+
+With the hook installed your character also **gains EXP** per tool call —
+editing code is worth more than looking around (`Edit` 5, `Task` 8, `Bash` 3,
+web 2, reads 1) — and the level shows on the MODEL line. The curve is
+quadratic (Lv.2 after ~5 edits, Lv.10 at 2025 EXP), levels persist across
+sessions in `~/.claude/ccrpg-state.json`, and crossing a boundary announces
+itself:
+
+```
+  ★ LEVEL UP!  you are now Lv.8
+```
+
+Unlike token-based scores, EXP is counted by the hook itself, so it stays
+exact regardless of caching or payload quirks.
+
+### Death & revival
+
+When a rate limit fully depletes — and later comes back — the window marks the
+moment:
+
+```
+  ★ THOU ART DEAD — 5-Hour is depleted
+  ...
+  ★ REVIVED!  5-Hour is restored — go forth, hero
+```
 
 ## How it works
 

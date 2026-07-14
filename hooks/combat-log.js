@@ -3,8 +3,10 @@
 // message that the statusline shows for a few seconds. Best-effort and silent —
 // it only writes a small event file and never blocks the tool.
 
-import { writeEvent } from "../lib/state.js";
+import { writeEvent, readState, writeState } from "../lib/state.js";
 import { combatMessage } from "../lib/hookmsg.js";
+import { gainExp } from "../lib/level.js";
+import { levelUpMessage } from "../lib/flourish.js";
 
 let data = "";
 process.stdin.setEncoding("utf8");
@@ -14,7 +16,16 @@ process.stdin.on("end", () => {
     const j = data.trim() ? JSON.parse(data) : {};
     const tool = j.tool_name || j.toolName || (j.tool && j.tool.name);
     const lang = process.env.CCRPG_LANG === "ja" ? "ja" : "en";
-    if (tool) writeEvent(combatMessage(tool, lang), 3000);
+    if (tool) {
+      // Award EXP for the tool call; announce a level-up over the combat line.
+      // (Read-modify-write can race the statusline's own writes; both sides
+      // are best-effort and a lost point is invisible, so we don't lock.)
+      const state = readState();
+      const { exp, lv, leveled } = gainExp(state, tool);
+      writeState({ ...state, exp });
+      if (leveled) writeEvent(levelUpMessage(lv, lang), 6000);
+      else writeEvent(combatMessage(tool, lang), 3000);
+    }
   } catch {
     /* ignore */
   }

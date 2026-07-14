@@ -31,12 +31,14 @@ const ailing = {
   badges: ["PSN", "PAR", "CRS"],
 };
 
+const leveled = { ...normal, lv: 12 };
+
 // The regression the user cares about: the table must never be misaligned.
 // The box is always the first 9 lines (incl. the column-header row); any
 // trailer below it is free-form.
 test("every box line has identical display width in all modes", () => {
   for (const mode of ["none", "256", "truecolor"]) {
-    for (const view of [normal, coldStart, ailing]) {
+    for (const view of [normal, coldStart, ailing, leveled]) {
       const widths = lineWidths(render(view, { mode })).slice(0, 9);
       assert.equal(widths.length, 9);
       for (const w of widths) assert.equal(w, OUTER, `mode=${mode}`);
@@ -75,6 +77,13 @@ test("cursor points at the most at-risk row (least left)", () => {
   assert.ok(lines[6].startsWith("║▶MP  5-Hour"), "cursor on MP/5-Hour (9 left)");
   assert.ok(lines[5].startsWith("║ HP  Weekly"), "no cursor on HP/Weekly");
   assert.ok(lines[7].startsWith("║ BAG Context"), "no cursor on BAG/Context");
+});
+
+test("persistent EXP shows as Lv. on the MODEL line", () => {
+  const lines = render(leveled, { mode: "none" }).split("\n");
+  assert.ok(lines[1].includes("Lv.12"));
+  const noHook = render(normal, { mode: "none" }).split("\n");
+  assert.ok(!noHook[1].includes("Lv."), "no level without hook-earned EXP");
 });
 
 test("status-ailment badges render on the EFFORT line", () => {
