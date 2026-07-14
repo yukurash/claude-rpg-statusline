@@ -3,26 +3,32 @@
 > Your Claude Code session as a Dragon-Quest-style status window.
 
 A zero-dependency [statusline](https://code.claude.com/docs/en/statusline) for
-Claude Code that renders your usage as a retro RPG HUD. Weekly / 5-hour /
-context gauges, model, effort and cumulative cost (`GOLD`), with a `▶` cursor
-that automatically points at whichever resource is closest to its limit.
+Claude Code that renders your usage as a retro RPG HUD. Your weekly limit is
+**HP**, the 5-hour limit is **MP**, the context window is your **BAG** — the
+bars drain like real RPG meters, a `▶` cursor points at whichever stat is
+closest to running out, and status ailments appear when things get dire.
 
 ```
 ╔════════════════════════════════════════════════╗
 ║ MODEL   opus-4.8                               ║
 ║ EFFORT  MAX                       GOLD  $12.40 ║
 ╟────────────┬──────────────────┬────────┬───────╢
-║ Weekly     │ ███████░░░░░░░░░ │ 41/100 │  3d   ║
-║▶5-Hour     │ ████████░░░░░░░░ │ 52/100 │  2h   ║
-║ Context    │ █████░░░░░░░░░░░ │ 33/100 │   —   ║
+║ RESOURCE   │       LIFE       │  LEFT  │RECOVER║
+║ HP  Weekly │ ▰▰▰▰▰▰▰▰▰▱▱▱▱▱▱▱ │ 59/100 │  3d   ║
+║▶MP  5-Hour │ ▰▰▰▰▰▰▰▰▱▱▱▱▱▱▱▱ │ 48/100 │  2h   ║
+║ BAG Context│ ▰▰▰▰▰▰▰▰▰▰▰▱▱▱▱▱ │ 67/100 │   —   ║
 ╚════════════╧══════════════════╧════════╧═══════╝
 ```
 
-When a resource gets hot, a battle line appears below the window:
+When a resource gets hot, ailment badges and battle lines appear:
 
 ```
-║▶5-Hour     │ ████████████████ │100/100 │  1h   ║
-║ Context    │ ███████████████░ │ 93/100 │   —   ║
+║ EFFORT  MAX  [PSN][PAR]           GOLD  $30.05 ║
+╟────────────┬──────────────────┬────────┬───────╢
+║ RESOURCE   │       LIFE       │  LEFT  │RECOVER║
+║ HP  Weekly │ ▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱ │ 18/100 │  2d   ║
+║▶MP  5-Hour │ ▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱ │ 0/100  │  1h   ║
+║ BAG Context│ ▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱ │ 7/100  │   —   ║
 ╚════════════╧══════════════════╧════════╧═══════╝
   ★ CRITICAL HIT!  code struck
   ⚠ INVENTORY FULL — run /compact to make room
@@ -30,18 +36,26 @@ When a resource gets hot, a battle line appears below the window:
 
 ## What it shows
 
-| Column | Meaning |
+| Field | Meaning |
 | --- | --- |
 | **MODEL** | Active model, e.g. `opus-4.8` |
 | **EFFORT** | Reasoning effort (`MAX` / `HIGH` / `MED` / `LOW`) |
 | **GOLD** | Cumulative session cost in USD (from `cost.total_cost_usd`) |
-| **Weekly** | 7-day rate-limit usage `used/100`, with reset countdown |
-| **5-Hour** | 5-hour rate-limit usage `used/100`, with reset countdown |
-| **Context** | Context-window usage (no timed reset → `—`) |
+| **HP** (Weekly) | 7-day rate limit — your long-term life bar |
+| **MP** (5-Hour) | 5-hour rate limit — recovers much faster, like magic points |
+| **BAG** (Context) | Context window — `/compact` empties the bag (no timed reset → `—`) |
 
-Gauges always show **usage** (so the numbers match `/usage`); the filled `█` is
-used and the empty `░` is the head-room you have left. Colors: green (≤60%),
-yellow (60–85%), red (≥85%).
+Bars and the **LEFT** number show what *remains* and drain toward zero,
+HP-style (`/usage` shows the used side; `used = 100 − LEFT`). Colors: green
+(plenty left), yellow (< 40 left), red (< 15 left).
+
+### Status ailments
+
+| Badge | Ailment | Trigger |
+| --- | --- | --- |
+| `[PSN]` | Poison — slowly dying | BAG (context) ≥ 90% full |
+| `[PAR]` | Paralysis — can't act | a rate limit is fully depleted |
+| `[CRS]` | Curse — gold is draining | `MAX` effort with GOLD ≥ $10 |
 
 ## Install
 

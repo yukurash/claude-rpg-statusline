@@ -23,7 +23,7 @@ test("a depleted resource is called out", () => {
 });
 
 test("danger threshold at 85% otherwise", () => {
-  assert.match(dangerMessage(view(88, 50, 30)), /DANGER — Weekly at 88%/);
+  assert.match(dangerMessage(view(88, 50, 30)), /DANGER — Weekly down to 12\/100/);
 });
 
 test("japanese messages available", () => {

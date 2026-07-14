@@ -11,35 +11,36 @@ const show = (title, view, opts = {}) => {
 show("Calm", {
   model: "opus-4.8", effort: "MAX", cost: 12.4,
   rows: [
-    { name: "Weekly", pct: 41, reset: "3d" },
-    { name: "5-Hour", pct: 52, reset: "2h" },
-    { name: "Context", pct: 33, reset: "—" },
+    { stat: "HP", name: "Weekly", pct: 41, reset: "3d" },
+    { stat: "MP", name: "5-Hour", pct: 52, reset: "2h" },
+    { stat: "BAG", name: "Context", pct: 33, reset: "—" },
   ],
 });
 
-show("Danger + combat event", {
+show("Ailing (PAR + PSN + CRS) + combat event", {
   model: "opus-4.8", effort: "MAX", cost: 30.05,
+  badges: ["PSN", "PAR", "CRS"],
   rows: [
-    { name: "Weekly", pct: 82, reset: "2d" },
-    { name: "5-Hour", pct: 100, reset: "1h" },
-    { name: "Context", pct: 93, reset: "—" },
+    { stat: "HP", name: "Weekly", pct: 82, reset: "2d" },
+    { stat: "MP", name: "5-Hour", pct: 100, reset: "1h" },
+    { stat: "BAG", name: "Context", pct: 93, reset: "—" },
   ],
 }, { event: "CRITICAL HIT!  code struck" });
 
 show("Cold start (rate limits not yet known)", {
   model: "sonnet-5", effort: "—", cost: 0,
   rows: [
-    { name: "Weekly", pct: null, reset: "--" },
-    { name: "5-Hour", pct: null, reset: "--" },
-    { name: "Context", pct: 8, reset: "—" },
+    { stat: "HP", name: "Weekly", pct: null, reset: "--" },
+    { stat: "MP", name: "5-Hour", pct: null, reset: "--" },
+    { stat: "BAG", name: "Context", pct: 8, reset: "—" },
   ],
 });
 
 show("ASCII fallback frame", {
   model: "haiku-4.5", effort: "LOW", cost: 3.1,
   rows: [
-    { name: "Weekly", pct: 61, reset: "5d" },
-    { name: "5-Hour", pct: 30, reset: "4h" },
-    { name: "Context", pct: 45, reset: "—" },
+    { stat: "HP", name: "Weekly", pct: 61, reset: "5d" },
+    { stat: "MP", name: "5-Hour", pct: 30, reset: "4h" },
+    { stat: "BAG", name: "Context", pct: 45, reset: "—" },
   ],
 }, { ascii: true });

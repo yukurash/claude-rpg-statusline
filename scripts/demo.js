@@ -9,9 +9,9 @@ const view = {
   effort: "MAX",
   cost: 30.05,
   rows: [
-    { name: "Weekly", pct: 71, reset: "3d" },
-    { name: "5-Hour", pct: 91, reset: "2h" },
-    { name: "Context", pct: 52, reset: "—" },
+    { stat: "HP", name: "Weekly", pct: 71, reset: "3d" },
+    { stat: "MP", name: "5-Hour", pct: 91, reset: "2h" },
+    { stat: "BAG", name: "Context", pct: 52, reset: "—" },
   ],
 };
 
