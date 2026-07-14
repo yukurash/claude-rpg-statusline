@@ -9,7 +9,7 @@ const show = (title, view, opts = {}) => {
 };
 
 show("Calm", {
-  model: "opus-4.8", effort: "MAX", cost: 12.4,
+  model: "opus-4.8", effort: "MAX", cost: 12.4, lv: 7,
   rows: [
     { stat: "HP", name: "Weekly", pct: 41, reset: "3d" },
     { stat: "MP", name: "5-Hour", pct: 52, reset: "2h" },

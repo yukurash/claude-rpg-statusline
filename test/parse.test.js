@@ -79,3 +79,9 @@ test("empty input never throws", () => {
   assert.equal(v.rows.length, 3);
   assert.equal(v.cost, null);
 });
+
+test("level derives from persisted EXP, absent without the hook", () => {
+  assert.equal(parseInput({}, { now: NOW, state: { exp: 2025 } }).lv, 10);
+  assert.equal(parseInput({}, { now: NOW, state: {} }).lv, null);
+  assert.equal(parseInput({}, { now: NOW }).lv, null);
+});
