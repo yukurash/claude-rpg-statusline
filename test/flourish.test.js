@@ -30,16 +30,16 @@ test("japanese messages available", () => {
   assert.match(dangerMessage(view(40, 100, 50), "ja"), /つきた/);
 });
 
-test("calm render is exactly 8 lines; danger render appends a trailer", () => {
-  assert.equal(render(view(40, 50, 30), { mode: "none" }).split("\n").length, 8);
+test("calm render is exactly 9 lines; danger render appends a trailer", () => {
+  assert.equal(render(view(40, 50, 30), { mode: "none" }).split("\n").length, 9);
   const dangerOut = render(view(40, 91, 30), { mode: "none" }).split("\n");
-  assert.equal(dangerOut.length, 9);
-  assert.match(dangerOut[8], /⚠/);
+  assert.equal(dangerOut.length, 10);
+  assert.match(dangerOut[9], /⚠/);
 });
 
 test("event line is rendered above the danger line", () => {
   const out = render(view(40, 91, 30), { mode: "none", event: "CRITICAL HIT!  code struck" }).split("\n");
-  assert.equal(out.length, 10);
-  assert.match(out[8], /★.*CRITICAL HIT/);
-  assert.match(out[9], /⚠/);
+  assert.equal(out.length, 11);
+  assert.match(out[9], /★.*CRITICAL HIT/);
+  assert.match(out[10], /⚠/);
 });
