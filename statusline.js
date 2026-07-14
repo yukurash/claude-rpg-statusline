@@ -7,6 +7,7 @@ import { parseInput, render } from "./lib/render.js";
 import { detectMode } from "./lib/color.js";
 import { readFreshEvent, readState, writeState, writeEvent } from "./lib/state.js";
 import { depletionTransition } from "./lib/flourish.js";
+import { gitBranch } from "./lib/branch.js";
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -38,16 +39,37 @@ async function main() {
   try {
     const now = Date.now();
     const lang = process.env.CCRPG_LANG === "ja" ? "ja" : "en";
+    // Theme: --theme plain / --theme=plain argv (baked in by the installer),
+    // CCRPG_THEME env as override. Default is the RPG window.
+    const argv = process.argv.slice(2);
+    const flagIdx = argv.indexOf("--theme");
+    const eqArg = argv.find((a) => a.startsWith("--theme="));
+    const argTheme =
+      (eqArg && eqArg.split("=")[1]) || (flagIdx !== -1 ? argv[flagIdx + 1] : null);
+    const theme = (process.env.CCRPG_THEME || argTheme) === "plain" ? "plain" : "rpg";
+
     const state = readState(); // cross-tick memory: EXP, depletion flags
     const view = parseInput(raw, { now, env: process.env, state });
 
+    // Current quest (git branch), from the workspace dir Claude Code reports.
+    // Reads .git/HEAD directly — no subprocess. CCRPG_BRANCH=0 disables.
+    if (process.env.CCRPG_BRANCH !== "0") {
+      const wsDir =
+        (raw.workspace && raw.workspace.current_dir) || raw.cwd || null;
+      view.branch = gitBranch(wsDir);
+    }
+
     // Death/revival transitions since the last tick become transient events
     // (written through the same channel as hook events, so the freshest wins).
-    const trans = depletionTransition(state, view.rows, lang);
-    if (trans.msg) writeEvent(trans.msg, 6000, now);
+    const trans = depletionTransition(state, view.rows, lang, theme);
+    if (trans.msg) writeEvent(trans.msg, 6000, now, "transition");
     if (trans.changed) writeState({ ...state, depleted: trans.depleted });
 
-    const event = readFreshEvent(now); // hook combat line / level-up / revival
+    // Plain theme skips the game chatter (combat lines, level-ups) and only
+    // surfaces limit transitions.
+    const ev = readFreshEvent(now);
+    const event =
+      ev && (theme !== "plain" || ev.kind === "transition") ? ev.msg : null;
 
     const GAUGES = {
       pips: ["▰", "▱"],
@@ -55,12 +77,15 @@ async function main() {
       orbs: ["◆", "◇"],
       dots: ["●", "○"],
     };
-    const glyphs = GAUGES[process.env.CCRPG_GAUGE] || GAUGES.pips;
+    const glyphs =
+      GAUGES[process.env.CCRPG_GAUGE] ||
+      (theme === "plain" ? GAUGES.bars : GAUGES.pips);
 
     const out = render(view, {
       mode: detectMode(process.env),
       ascii: process.env.CCRPG_ASCII === "1",
       lang,
+      theme,
       event,
       glyphs,
     });

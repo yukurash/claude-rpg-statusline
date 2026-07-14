@@ -33,14 +33,17 @@ const ailing = {
 
 const leveled = { ...normal, lv: 12 };
 
+const questing = { ...normal, branch: "feat/branch-line" };
+
 // The regression the user cares about: the table must never be misaligned.
 // The box is always the first 9 lines (incl. the column-header row); any
 // trailer below it is free-form.
 test("every box line has identical display width in all modes", () => {
   for (const mode of ["none", "256", "truecolor"]) {
-    for (const view of [normal, coldStart, ailing, leveled]) {
-      const widths = lineWidths(render(view, { mode })).slice(0, 9);
-      assert.equal(widths.length, 9);
+    for (const view of [normal, coldStart, ailing, leveled, questing]) {
+      const boxLines = view.branch ? 10 : 9;
+      const widths = lineWidths(render(view, { mode })).slice(0, boxLines);
+      assert.equal(widths.length, boxLines);
       for (const w of widths) assert.equal(w, OUTER, `mode=${mode}`);
     }
   }
@@ -77,6 +80,32 @@ test("cursor points at the most at-risk row (least left)", () => {
   assert.ok(lines[6].startsWith("║▶MP  5-Hour"), "cursor on MP/5-Hour (9 left)");
   assert.ok(lines[5].startsWith("║ HP  Weekly"), "no cursor on HP/Weekly");
   assert.ok(lines[7].startsWith("║ BAG Context"), "no cursor on BAG/Context");
+});
+
+test("branch renders as QUEST (rpg) / BRANCH (plain), truncated to fit", () => {
+  const rpg = render(questing, { mode: "none" }).split("\n");
+  assert.match(rpg[2], /QUEST {3}feat\/branch-line/);
+  const plain = render(questing, { mode: "none", theme: "plain" }).split("\n");
+  assert.match(plain[2], /BRANCH {2}feat\/branch-line/);
+  // A silly-long branch name must not break the frame.
+  const long = render(
+    { ...normal, branch: "feature/" + "x".repeat(80) },
+    { mode: "none" }
+  );
+  for (const w of lineWidths(long).slice(0, 10)) assert.equal(w, INNER + 2);
+});
+
+test("plain theme drops the game fiction but keeps the layout", () => {
+  const view = { ...normal, badges: ["PAR", "CRS"], lv: 12 };
+  const out = render(view, { mode: "none", theme: "plain" });
+  const lines = out.split("\n");
+  assert.ok(lines[0].startsWith("┌"), "single-line frame");
+  assert.ok(!lines[1].includes("Lv."), "no level");
+  assert.ok(lines[2].includes("COST  $30.05"), "COST instead of GOLD");
+  assert.ok(!lines[2].includes("["), "no ailment badges");
+  assert.match(lines[4], /RESOURCE.*REMAINING.*LEFT.*RESET/);
+  assert.ok(lines[5].startsWith("│ Weekly"), "no HP/MP/BAG prefixes");
+  for (const w of lineWidths(out).slice(0, 9)) assert.equal(w, OUTER);
 });
 
 test("persistent EXP shows as Lv. on the MODEL line", () => {

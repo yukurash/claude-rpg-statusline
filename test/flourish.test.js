@@ -50,6 +50,17 @@ test("depletion transition: death, then silence, then revival", () => {
   assert.ok(back.changed);
 });
 
+test("plain theme wording: factual, no game fiction", () => {
+  assert.match(dangerMessage(view(88, 50, 30), "en", "plain"), /Weekly running low — 12\/100 left/);
+  assert.match(dangerMessage(view(40, 100, 50), "en", "plain"), /5-Hour limit reached/);
+  assert.match(dangerMessage(view(95, 99, 92), "en", "plain"), /run \/compact/);
+  const dead = depletionTransition({}, rows(40, 100, 50), "en", "plain");
+  assert.equal(dead.msg, null, "no death line — the warning already covers it");
+  assert.ok(dead.changed);
+  const back = depletionTransition({ depleted: dead.depleted }, rows(40, 5, 50), "en", "plain");
+  assert.match(back.msg, /5-Hour limit restored/);
+});
+
 test("losing rate-limit data is not a resurrection", () => {
   const dead = depletionTransition({}, rows(40, 100, 50));
   const unknown = depletionTransition({ depleted: dead.depleted }, rows(40, null, 50));

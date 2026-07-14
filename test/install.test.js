@@ -21,6 +21,17 @@ test("statusLineCommand quotes the path for spaces", () => {
   );
 });
 
+test("theme flag is baked into the command only when given", () => {
+  assert.equal(
+    statusLineCommand("/x/statusline.js", "plain"),
+    'node "/x/statusline.js" --theme plain'
+  );
+  const after = patchSettings({}, "/x/statusline.js", { theme: "plain" });
+  assert.match(after.statusLine.command, /--theme plain$/);
+  const plainless = patchSettings({}, "/x/statusline.js");
+  assert.ok(!plainless.statusLine.command.includes("--theme"));
+});
+
 test("unpatchSettings removes only the statusLine", () => {
   const s = patchSettings({ theme: "dark" }, "/x.js");
   const out = unpatchSettings(s);

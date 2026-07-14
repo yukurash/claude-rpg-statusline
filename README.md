@@ -42,6 +42,7 @@ When a resource gets hot, ailment badges and battle lines appear:
 | **EFFORT** | Reasoning effort (`MAX` / `HIGH` / `MED` / `LOW`) |
 | **GOLD** | Cumulative session cost in USD (from `cost.total_cost_usd`) |
 | **Lv.** | Character level from persistent EXP (needs the [combat-log hook](#optional-combat-log-hook-exp--levels)) |
+| **QUEST** | Current git branch (`BRANCH` in the plain theme), read from `.git/HEAD` — no subprocess. Hidden outside a repo; `CCRPG_BRANCH=0` disables |
 | **HP** (Weekly) | 7-day rate limit — your long-term life bar |
 | **MP** (5-Hour) | 5-hour rate limit — recovers much faster, like magic points |
 | **BAG** (Context) | Context window — `/compact` empties the bag (no timed reset → `—`) |
@@ -74,6 +75,34 @@ Then restart or interact with Claude Code. To remove it:
 npm run uninstall-statusline
 ```
 
+### Plain theme (no game fiction)
+
+Prefer the same gauges without the RPG dressing? Install with:
+
+```bash
+npm run install-statusline -- --theme plain
+```
+
+```
+┌────────────────────────────────────────────────┐
+│ MODEL   opus-4.8                               │
+│ EFFORT  MAX                       COST  $12.40 │
+├────────────┬──────────────────┬────────┬───────┤
+│ RESOURCE   │    REMAINING     │  LEFT  │ RESET │
+│ Weekly     │ █████████░░░░░░░ │ 59/100 │  3d   │
+│▶5-Hour     │ ████████░░░░░░░░ │ 48/100 │  2h   │
+│ Context    │ ██████████░░░░░░ │ 67/100 │   —   │
+└────────────┴──────────────────┴────────┴───────┘
+  ⚠ 5-Hour running low — 9/100 left
+```
+
+Same layout and data, but: solid `█` bars in a single-line frame, `COST`
+instead of `GOLD`, no HP/MP/BAG or level, no ailment badges, and factual
+warnings ("5-Hour limit reached — waiting for reset") instead of battle lines.
+Combat-log chatter and level-ups are hidden (EXP still accrues if the hook is
+installed, so switching back later keeps your level). `CCRPG_THEME=plain|rpg`
+overrides at runtime.
+
 ### Manual install
 
 Add this to `~/.claude/settings.json` (adjust the path):
@@ -95,10 +124,12 @@ session is idle.
 
 | Variable | Effect |
 | --- | --- |
+| `CCRPG_THEME` | `rpg` (default) / `plain` — see [Plain theme](#plain-theme-no-game-fiction) |
 | `CCRPG_COLOR` | `truecolor` / `256` / `none` (default: auto-detect) |
 | `CCRPG_ASCII=1` | Use an ASCII frame (`+ - |`) for terminals that mangle box-drawing |
 | `CCRPG_GAUGE` | Gauge style: `pips` (default `▰▱`) / `bars` (`█░`) / `orbs` (`◆◇`) / `dots` (`●○`) |
 | `CCRPG_LANG=ja` | Japanese battle messages (`レベルアップ！`, `ふくろが いっぱいだ！`) |
+| `CCRPG_BRANCH=0` | Hide the QUEST/BRANCH (git branch) line |
 | `CCRPG_STATE_DIR` | Override the state directory (default `~/.claude`) |
 | `CCRPG_DEBUG=1` | Dump the raw stdin JSON to `~/.claude/ccrpg-debug-stdin.json` |
 

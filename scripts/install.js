@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Register (or remove) claude-rpg-statusline in ~/.claude/settings.json.
-//   node scripts/install.js            -> install
+//   node scripts/install.js                 -> install (RPG theme)
+//   node scripts/install.js --theme plain   -> install without the game fiction
 //   node scripts/install.js --uninstall
 //
 // Makes a timestamped backup and preserves every other setting.
@@ -22,6 +23,12 @@ const scriptPath = resolve(here, "..", "statusline.js");
 const settingsDir = process.env.CCRPG_STATE_DIR || join(homedir(), ".claude");
 const settingsPath = join(settingsDir, "settings.json");
 const uninstall = process.argv.includes("--uninstall");
+const themeIdx = process.argv.indexOf("--theme");
+const theme = themeIdx !== -1 ? process.argv[themeIdx + 1] : null;
+if (theme != null && !["rpg", "plain"].includes(theme)) {
+  console.error(`Unknown theme "${theme}" — use rpg or plain.`);
+  process.exit(1);
+}
 
 function readSettings() {
   try {
@@ -39,7 +46,7 @@ if (existsSync(settingsPath)) {
 const current = readSettings();
 const next = uninstall
   ? unpatchSettings(current)
-  : patchSettings(current, scriptPath);
+  : patchSettings(current, scriptPath, theme && theme !== "rpg" ? { theme } : {});
 
 writeFileSync(settingsPath, JSON.stringify(next, null, 2) + "\n", "utf8");
 
