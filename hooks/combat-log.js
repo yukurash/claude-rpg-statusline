@@ -23,8 +23,8 @@ process.stdin.on("end", () => {
       const state = readState();
       const { exp, lv, leveled } = gainExp(state, tool);
       writeState({ ...state, exp });
-      if (leveled) writeEvent(levelUpMessage(lv, lang), 6000);
-      else writeEvent(combatMessage(tool, lang), 3000);
+      if (leveled) writeEvent(levelUpMessage(lv, lang), 6000, Date.now(), "levelup");
+      else writeEvent(combatMessage(tool, lang), 3000, Date.now(), "combat");
     }
   } catch {
     /* ignore */

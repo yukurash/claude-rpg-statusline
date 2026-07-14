@@ -36,6 +36,15 @@ show("Cold start (rate limits not yet known)", {
   ],
 });
 
+show("Plain theme (no game fiction)", {
+  model: "opus-4.8", effort: "MAX", cost: 12.4, lv: 7, badges: ["CRS"],
+  rows: [
+    { stat: "HP", name: "Weekly", pct: 41, reset: "3d" },
+    { stat: "MP", name: "5-Hour", pct: 52, reset: "2h" },
+    { stat: "BAG", name: "Context", pct: 33, reset: "—" },
+  ],
+}, { theme: "plain", glyphs: ["█", "░"] });
+
 show("ASCII fallback frame", {
   model: "haiku-4.5", effort: "LOW", cost: 3.1,
   rows: [

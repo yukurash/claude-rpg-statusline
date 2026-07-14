@@ -79,6 +79,19 @@ test("cursor points at the most at-risk row (least left)", () => {
   assert.ok(lines[7].startsWith("║ BAG Context"), "no cursor on BAG/Context");
 });
 
+test("plain theme drops the game fiction but keeps the layout", () => {
+  const view = { ...normal, badges: ["PAR", "CRS"], lv: 12 };
+  const out = render(view, { mode: "none", theme: "plain" });
+  const lines = out.split("\n");
+  assert.ok(lines[0].startsWith("┌"), "single-line frame");
+  assert.ok(!lines[1].includes("Lv."), "no level");
+  assert.ok(lines[2].includes("COST  $30.05"), "COST instead of GOLD");
+  assert.ok(!lines[2].includes("["), "no ailment badges");
+  assert.match(lines[4], /RESOURCE.*REMAINING.*LEFT.*RESET/);
+  assert.ok(lines[5].startsWith("│ Weekly"), "no HP/MP/BAG prefixes");
+  for (const w of lineWidths(out).slice(0, 9)) assert.equal(w, OUTER);
+});
+
 test("persistent EXP shows as Lv. on the MODEL line", () => {
   const lines = render(leveled, { mode: "none" }).split("\n");
   assert.ok(lines[1].includes("Lv.12"));

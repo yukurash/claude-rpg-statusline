@@ -38,16 +38,29 @@ async function main() {
   try {
     const now = Date.now();
     const lang = process.env.CCRPG_LANG === "ja" ? "ja" : "en";
+    // Theme: --theme plain / --theme=plain argv (baked in by the installer),
+    // CCRPG_THEME env as override. Default is the RPG window.
+    const argv = process.argv.slice(2);
+    const flagIdx = argv.indexOf("--theme");
+    const eqArg = argv.find((a) => a.startsWith("--theme="));
+    const argTheme =
+      (eqArg && eqArg.split("=")[1]) || (flagIdx !== -1 ? argv[flagIdx + 1] : null);
+    const theme = (process.env.CCRPG_THEME || argTheme) === "plain" ? "plain" : "rpg";
+
     const state = readState(); // cross-tick memory: EXP, depletion flags
     const view = parseInput(raw, { now, env: process.env, state });
 
     // Death/revival transitions since the last tick become transient events
     // (written through the same channel as hook events, so the freshest wins).
-    const trans = depletionTransition(state, view.rows, lang);
-    if (trans.msg) writeEvent(trans.msg, 6000, now);
+    const trans = depletionTransition(state, view.rows, lang, theme);
+    if (trans.msg) writeEvent(trans.msg, 6000, now, "transition");
     if (trans.changed) writeState({ ...state, depleted: trans.depleted });
 
-    const event = readFreshEvent(now); // hook combat line / level-up / revival
+    // Plain theme skips the game chatter (combat lines, level-ups) and only
+    // surfaces limit transitions.
+    const ev = readFreshEvent(now);
+    const event =
+      ev && (theme !== "plain" || ev.kind === "transition") ? ev.msg : null;
 
     const GAUGES = {
       pips: ["▰", "▱"],
@@ -55,12 +68,15 @@ async function main() {
       orbs: ["◆", "◇"],
       dots: ["●", "○"],
     };
-    const glyphs = GAUGES[process.env.CCRPG_GAUGE] || GAUGES.pips;
+    const glyphs =
+      GAUGES[process.env.CCRPG_GAUGE] ||
+      (theme === "plain" ? GAUGES.bars : GAUGES.pips);
 
     const out = render(view, {
       mode: detectMode(process.env),
       ascii: process.env.CCRPG_ASCII === "1",
       lang,
+      theme,
       event,
       glyphs,
     });
