@@ -42,6 +42,7 @@ When a resource gets hot, ailment badges and battle lines appear:
 | **EFFORT** | Reasoning effort (`MAX` / `HIGH` / `MED` / `LOW`) |
 | **GOLD** | Cumulative session cost in USD (from `cost.total_cost_usd`) |
 | **Lv.** | Character level from persistent EXP (needs the [combat-log hook](#optional-combat-log-hook-exp--levels)) |
+| **QUEST** | Current git branch (`BRANCH` in the plain theme), read from `.git/HEAD` — no subprocess. Hidden outside a repo; `CCRPG_BRANCH=0` disables |
 | **HP** (Weekly) | 7-day rate limit — your long-term life bar |
 | **MP** (5-Hour) | 5-hour rate limit — recovers much faster, like magic points |
 | **BAG** (Context) | Context window — `/compact` empties the bag (no timed reset → `—`) |
@@ -128,6 +129,7 @@ session is idle.
 | `CCRPG_ASCII=1` | Use an ASCII frame (`+ - |`) for terminals that mangle box-drawing |
 | `CCRPG_GAUGE` | Gauge style: `pips` (default `▰▱`) / `bars` (`█░`) / `orbs` (`◆◇`) / `dots` (`●○`) |
 | `CCRPG_LANG=ja` | Japanese battle messages (`レベルアップ！`, `ふくろが いっぱいだ！`) |
+| `CCRPG_BRANCH=0` | Hide the QUEST/BRANCH (git branch) line |
 | `CCRPG_STATE_DIR` | Override the state directory (default `~/.claude`) |
 | `CCRPG_DEBUG=1` | Dump the raw stdin JSON to `~/.claude/ccrpg-debug-stdin.json` |
 

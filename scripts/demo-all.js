@@ -10,6 +10,7 @@ const show = (title, view, opts = {}) => {
 
 show("Calm", {
   model: "opus-4.8", effort: "MAX", cost: 12.4, lv: 7,
+  branch: "feat/rescue-the-princess",
   rows: [
     { stat: "HP", name: "Weekly", pct: 41, reset: "3d" },
     { stat: "MP", name: "5-Hour", pct: 52, reset: "2h" },
@@ -38,6 +39,7 @@ show("Cold start (rate limits not yet known)", {
 
 show("Plain theme (no game fiction)", {
   model: "opus-4.8", effort: "MAX", cost: 12.4, lv: 7, badges: ["CRS"],
+  branch: "feat/plain-theme",
   rows: [
     { stat: "HP", name: "Weekly", pct: 41, reset: "3d" },
     { stat: "MP", name: "5-Hour", pct: 52, reset: "2h" },

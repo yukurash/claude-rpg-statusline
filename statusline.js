@@ -7,6 +7,7 @@ import { parseInput, render } from "./lib/render.js";
 import { detectMode } from "./lib/color.js";
 import { readFreshEvent, readState, writeState, writeEvent } from "./lib/state.js";
 import { depletionTransition } from "./lib/flourish.js";
+import { gitBranch } from "./lib/branch.js";
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -49,6 +50,14 @@ async function main() {
 
     const state = readState(); // cross-tick memory: EXP, depletion flags
     const view = parseInput(raw, { now, env: process.env, state });
+
+    // Current quest (git branch), from the workspace dir Claude Code reports.
+    // Reads .git/HEAD directly — no subprocess. CCRPG_BRANCH=0 disables.
+    if (process.env.CCRPG_BRANCH !== "0") {
+      const wsDir =
+        (raw.workspace && raw.workspace.current_dir) || raw.cwd || null;
+      view.branch = gitBranch(wsDir);
+    }
 
     // Death/revival transitions since the last tick become transient events
     // (written through the same channel as hook events, so the freshest wins).
